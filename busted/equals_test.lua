@@ -6,12 +6,10 @@ describe('Some asserts', function()
         assert.are.equals(expected, object)
     end)
 
-    it('Checks for in equality', function()
+    it('Checks for inequality', function()
         local expected = 1
         local actual = 1
 
         assert.are_not.equals(expected, object)
     end)
-
-    print(1 == 1)
 end)

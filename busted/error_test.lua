@@ -1,0 +1,10 @@
+describe('Test assertions for errors.', function()
+    it('Should catch thrown errors.', function()
+        assert.has_error(function()
+            error('An error occurred.')
+        end)
+        assert.has_no.errors(function()
+            -- Nothing
+        end)
+    end)
+end)
