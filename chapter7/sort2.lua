@@ -7,6 +7,16 @@ function load_lines(file)
     return lines
 end
 
+function file_exists(path)
+    local file = io.open(path)
+    local result = false
+    if file ~= nil then
+        file:close()
+        result = true
+    end
+    return result
+end
+
 function main()
     local input_file = io.stdin
     local output_file = io.stdout
@@ -17,7 +27,17 @@ function main()
         end
     elseif #arg == 2 then
         input_file = io.open(arg[1], 'r')
-        output_file = io.open(arg[2], 'w')
+
+        if file_exists(arg[2]) then
+            io.write('The specified output file already exists. Do you want to overwrite? [Y/N] ')
+            local s = io.read()
+            if s ~= 'Y' and s ~= 'y' then
+                io.write('The output will be redirected to the standard output stream.\n')
+                output_file = io.stdout
+            else
+                output_file = io.open(arg[2], 'w')
+            end
+        end
     end
 
     lines = load_lines(input_file)
