@@ -11,7 +11,9 @@ describe('Test sorting the input file', function()
     local input_file = nil
     local output_file = nil
 
+
     setup(function()
+        --[[
         input_file = io.stdin
         output_file = io.stdout
         if #arg == 2 then
@@ -23,6 +25,10 @@ describe('Test sorting the input file', function()
             input_file = io.open(arg[2], 'r')
             output_file = io.open(arg[3], 'w')
         end
+        --]]
+
+        input_file = io.open('input', 'r')
+        output_file = io.open('output', 'w')
     end)
 
     teardown(function()
