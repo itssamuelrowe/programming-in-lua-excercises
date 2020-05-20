@@ -67,16 +67,16 @@ function serialize_acyclic(object, depth, in_assignment)
             end
 
             if not skip then
-                local format = ' [%s] = '
+                local format = '%s[%s] = '
                 if type(key) == 'string' then
                     if keywords[key] == nil then
-                        format = ' %s = '
+                        format = '%s%s = '
                     else
-                        format = ' [\'%s\'] = '
+                        format = '%s[\'%s\'] = '
                     end
                 end
                 local indentation = string.rep(' ', (depth + 1) * 4)
-                local content = string.format('%s[%s] = ', indentation, key)
+                local content = string.format(format, indentation, key)
                 io.write(content)
                 serialize_acyclic(value, depth + 1, true)
                 io.write(',\n')
