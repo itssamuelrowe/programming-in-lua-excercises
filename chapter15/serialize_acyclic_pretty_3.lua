@@ -22,23 +22,29 @@ local keywords = {
     ['while'] = true
 }
 
-function write_sequence(sequence)
-    io.write('{')
+function write_sequence(sequence, depth)
+    io.write(string.format('%s{\n', string.rep(' ', depth * 4)))
     for index, element in ipairs(sequence) do
-        serialize_acyclic(element)
+        serialize_acyclic(element, depth + 1)
         io.write(',\n')
     end
-    io.write('},\n')
+    io.write(string.format('%s},\n', string.rep(' ', depth * 4)))
 end
 
-function serialize_acyclic(object)
+function serialize_acyclic(object, depth, in_assignment)
     local t = type(object)
     if t == 'number' or t == 'string' or
        t == 'boolean' or t == 'nil' then
         local content = string.format('%q', object)
         io.write(content)
     elseif t == 'table' then
-        io.write('{\n')
+        local brace = nil
+        if in_assignment then
+            brace = '{\n'
+        else
+            brace = string.rep(' ', depth * 4) .. '{\n'
+        end
+        io.write(brace)
         local sequence = nil
         local nil_encountered = false
         local n = 0
@@ -53,7 +59,7 @@ function serialize_acyclic(object)
                     skip = true
                 else
                     if not nil_encountered and sequence ~= nil then
-                        write_sequence(sequence)
+                        write_sequence(sequence, depth + 1)
                         sequence = nil
                         nil_encountered = true
                     end
@@ -69,24 +75,25 @@ function serialize_acyclic(object)
                         format = ' [\'%s\'] = '
                     end
                 end
-                local content = string.format(format, key)
+                local indentation = string.rep(' ', (depth + 1) * 4)
+                local content = string.format('%s[%s] = ', indentation, key)
                 io.write(content)
-                serialize_acyclic(value)
+                serialize_acyclic(value, depth + 1, true)
                 io.write(',\n')
             end
         end
 
         if sequence ~= nil then
-            write_sequence(sequence)
+            write_sequence(sequence, depth + 1)
         end
 
-        io.write('}\n')
+        io.write(string.format('%s}', string.rep(' ', depth * 4)))
     else
         error('Cannot serialize a ' .. t)
     end
 end
 
-result1 = serialize_acyclic('hello, world!')
+result1 = serialize_acyclic('hello, world!', 0)
 print(result1)
 
 result2 = serialize_acyclic({
@@ -115,5 +122,5 @@ result2 = serialize_acyclic({
         lastName = 'Chowdhary'
     },
     n = 6
-})
+}, 0, true)
 print(result2)
