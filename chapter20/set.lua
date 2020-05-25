@@ -63,4 +63,15 @@ function Set.is_equal(a, b)
 end
 metatable.__eq = Set.is_equal
 
+function Set.subtract(a, b)
+	local result = {}
+	for key in pairs(a) do
+		if b[key] == nil then
+			result[key] = true
+		end
+	end
+	return result
+end
+metatable.__sub = Set.subtract
+
 return Set

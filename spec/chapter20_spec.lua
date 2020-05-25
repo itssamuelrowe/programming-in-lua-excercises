@@ -18,6 +18,7 @@ describe('Test from chapter 20', function()
 		assert.is_true(s1 >= s1) --> true
 		assert.is_false(s1 > s1) --> false
 		assert.is_true(s1 == (s2 * s1)) --> true
+		assert.is_same(s2 - s1, { [10] = true })
 		print(s1, s2)
 	end)
 end)
