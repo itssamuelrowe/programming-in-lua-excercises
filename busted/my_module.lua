@@ -1,7 +1,7 @@
 local my_module = {}
 local private_element = { 'this', 'is', 'private' }
 
-function my_module:display()
+function my_module.display()
     print(string.concat(private_element, ' '))
 end
 

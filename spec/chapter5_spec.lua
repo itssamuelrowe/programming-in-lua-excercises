@@ -86,8 +86,8 @@ describe('Test sequence insertion', function()
     -- Polynomial
 
     it('Tests for an expression with n = 3', function()
-        local expected = 14
-        local actual = polynomial(2, { 2, 2, 2 })
+        local expected = 2 + (5 * 2) + (10 * 2 ^ 2)
+        local actual = polynomial(2, { 2, 5, 10 })
         assert.are_equal(expected, actual)
     end)
 end)

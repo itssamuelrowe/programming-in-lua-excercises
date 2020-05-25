@@ -1,9 +1,6 @@
 function remove_last(...)
     local sequence = table.pack(...)
-    local n = select('#', ...)
-    sequence[n] = nil
-
-    return table.unpack(sequence)
+    return table.unpack(sequence, 1, sequence.n - 1)
 end
 
-print(remove_last(1, 2, 3))
+print(remove_last(1, 2, nil, 3, 4))
