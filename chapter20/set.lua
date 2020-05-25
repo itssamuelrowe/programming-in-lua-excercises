@@ -74,4 +74,13 @@ function Set.subtract(a, b)
 end
 metatable.__sub = Set.subtract
 
+function Set.length(a)
+	local result = 0
+	for key in pairs(a) do
+		result = result + 1
+	end
+	return result
+end
+metatable.__len = Set.length
+
 return Set
