@@ -137,29 +137,27 @@ G = P {
 G = Space * G * -1
 
 -- Evaluator
-function evaluate(x)
-    if x.tag == 'Number' then
-        return tonumber(x.value)
+function evaluate(node)
+    if node.tag == 'Number' then
+        return tonumber(node.value)
     else
-        if x.tag == 'Factor' and x.args[1] == nil then
-            return evaluate(x.args)
-        else
-            local operand1 = evaluate(x.args[1])
-            for i = 2, #x.args, 2 do
-                local operator = x.args[i]
-                local operand2 = evaluate(x.args[i + 1])
-                if operator == '+' then
-                    operand1 = operand1 + operand2
-                elseif operator == '-' then
-                    operand1 = operand1 - operand2
-                elseif operator == '*' then
-                    operand1 = operand1 * operand2
-                elseif operator == '/' then
-                    operand1 = operand1 / operand2
-                end
+        local operand1 = evaluate(node.x)
+        local result = operand1
+        if node.y then
+            local operator = node.operator
+            local operand2 = evaluate(node.y)
+
+            if operator == '+' then
+                result = operand1 + operand2
+            elseif operator == '-' then
+                result = operand1 - operand2
+            elseif operator == '*' then
+                result = operand1 * operand2
+            elseif operator == '/' then
+                result = operand1 / operand2
             end
-            return operand1
         end
+        return result
     end
 end
 
@@ -169,7 +167,7 @@ function compute(s)
         error('Syntax error', 2)
     end
     serialize(t)
-    -- return evaluate(t)
+    return evaluate(t)
 end
 
-print(compute('1 + 2 * 3'))
+print(compute('1 + 2'))
