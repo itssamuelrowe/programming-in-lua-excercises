@@ -132,24 +132,28 @@ G = Space * G * -1
 
 -- Evaluator
 function evaluate(x)
-    if type(x) == 'string' then
-      return tonumber(x)
+    if x.tag == 'Number' then
+        return tonumber(x.value)
     else
-        local operator1 = evaluate(x[1])
-        for i = 2, #x, 2 do
-            local operator = x[i]
-            local operator2 = evaluate(x[i + 1])
-            if operator == '+' then
-                operator1 = operator1 + operator2
-            elseif operator == '-' then
-                operator1 = operator1 - operator2
-            elseif operator == '*' then
-                operator1 = operator1 * operator2
-            elseif operator == '/' then
-                operator1 = operator1 / operator2
+        if x.tag == 'Factor' and x.args[1] == nil then
+            return evaluate(x.args)
+        else
+            local operand1 = evaluate(x.args[1])
+            for i = 2, #x.args, 2 do
+                local operator = x.args[i]
+                local operand2 = evaluate(x.args[i + 1])
+                if operator == '+' then
+                    operand1 = operand1 + operand2
+                elseif operator == '-' then
+                    operand1 = operand1 - operand2
+                elseif operator == '*' then
+                    operand1 = operand1 * operand2
+                elseif operator == '/' then
+                    operand1 = operand1 / operand2
+                end
             end
+            return operand1
         end
-        return operator1
     end
 end
 
@@ -159,7 +163,7 @@ function compute(s)
         error('Syntax error', 2)
     end
     serialize(t)
-    -- return evaluate(t)
+    return evaluate(t)
 end
 
 print(compute('1 + 2'))
