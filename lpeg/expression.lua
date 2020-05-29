@@ -82,21 +82,51 @@ function serialize(object)
     io.write('\n\n')
 end
 
+function make_node(tag, arguments)
+    return {
+        tag = tag,
+        args = arguments
+    }
+end
+
+function make_expression(table)
+    return make_node('Expression', table)
+end
+
+function make_term(table)
+    return make_node('Term', table)
+end
+
+function make_factor(arguments)
+    return make_node('Factor', arguments)
+end
+
+function make_literal(value)
+    return {
+        tag = 'Number',
+        value = value
+    }
+end
+
 -- Lexical Elements
-local Space = lpeg.S(' \n\t') ^ 0
-local Number = lpeg.C(lpeg.P('-') ^ -1 * lpeg.R('09') ^ 1) * Space
-local TermOperator = lpeg.C(lpeg.S('+-')) * Space
-local FactorOperator = lpeg.C(lpeg.S('*/')) * Space
+
+local S, C, P, R, Ct, V = lpeg.S, lpeg.C, lpeg.P, lpeg.R, lpeg.Ct, lpeg.V
+
+local Space = S' \n\t' ^ 0
+local Number = C(P'-' ^ -1 * R'09' ^ 1) * Space
+local TermOperator = C(S'+-') * Space
+local FactorOperator = C(S'*/') * Space
 local Open = '(' * Space
 local Close = ')' * Space
 
 -- Grammar
-local Expression, Term, Factor = lpeg.V('Expression'), lpeg.V('Term'), lpeg.V('Factor')
-G = lpeg.P{
+local Expression, Term, Factor, Literal = V'Expression', V'Term', V'Factor', V'Literal'
+G = P {
     Expression,
-    Expression = lpeg.Ct(Term * (TermOperator * Term) ^ 0);
-    Term = lpeg.Ct(Factor * (FactorOperator * Factor) ^ 0);
-    Factor = Number + Open * Expression * Close;
+    Expression = Ct(Term * (TermOperator * Term) ^ 0) / make_expression;
+    Term = Ct(Factor * (FactorOperator * Factor) ^ 0) / make_term;
+    Factor = (Literal + Open * Expression * Close) / make_factor;
+    Literal = Number / make_literal
 }
 G = Space * G * -1
 
@@ -105,21 +135,21 @@ function evaluate(x)
     if type(x) == 'string' then
       return tonumber(x)
     else
-        local op1 = evaluate(x[1])
+        local operator1 = evaluate(x[1])
         for i = 2, #x, 2 do
-            local op = x[i]
-            local op2 = evaluate(x[i + 1])
-            if (op == '+') then
-                op1 = op1 + op2
-            elseif (op == '-') then
-                op1 = op1 - op2
-            elseif (op == '*') then
-                op1 = op1 * op2
-            elseif (op == '/') then
-                op1 = op1 / op2
+            local operator = x[i]
+            local operator2 = evaluate(x[i + 1])
+            if operator == '+' then
+                operator1 = operator1 + operator2
+            elseif operator == '-' then
+                operator1 = operator1 - operator2
+            elseif operator == '*' then
+                operator1 = operator1 * operator2
+            elseif operator == '/' then
+                operator1 = operator1 / operator2
             end
         end
-        return op1
+        return operator1
     end
 end
 
@@ -129,7 +159,7 @@ function compute(s)
         error('Syntax error', 2)
     end
     serialize(t)
-    return evaluate(t)
+    -- return evaluate(t)
 end
 
 print(compute('1 + 2'))
