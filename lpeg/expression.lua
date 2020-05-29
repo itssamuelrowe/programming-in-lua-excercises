@@ -38,7 +38,11 @@ function serialize_acyclic(object, depth, in_assignment)
     if t == 'number' or t == 'string' or
        t == 'boolean' or t == 'nil' then
         local content = string.format('%q', object)
-        io.write(string.rep('    ', depth), content)
+        local indentation = ''
+        if not in_assignment then
+            indentation = string.rep('    ', depth)
+        end
+        io.write(indentation, content)
     elseif t == 'table' then
         local brace = nil
         if in_assignment then
@@ -47,42 +51,20 @@ function serialize_acyclic(object, depth, in_assignment)
             brace = string.rep(' ', depth * 4) .. '{\n'
         end
         io.write(brace)
-        local sequence = nil
-        local nil_encountered = false
-        local n = 0
         for key, value in pairs(object) do
-            local key_type = type(key)
-            local skip = false
-
-            if key_type == 'number' and math.type(key) == 'integer' then
-                if key == ((sequence and #sequence + 1) or 1) then
-                    sequence = sequence or {}
-                    sequence[#sequence + 1] = value
-                    skip = true
+            local format = '%s[%s] = '
+            if type(key) == 'string' then
+                if keywords[key] == nil then
+                    format = '%s%s = '
                 else
-                    if not nil_encountered and sequence ~= nil then
-                        write_sequence(sequence, depth + 1)
-                        sequence = nil
-                        nil_encountered = true
-                    end
+                    format = '%s[\'%s\'] = '
                 end
             end
-
-            if not skip then
-                local format = '%s[%s] = '
-                if type(key) == 'string' then
-                    if keywords[key] == nil then
-                        format = '%s%s = '
-                    else
-                        format = '%s[\'%s\'] = '
-                    end
-                end
-                local indentation = string.rep(' ', (depth + 1) * 4)
-                local content = string.format(format, indentation, key)
-                io.write(content)
-                serialize_acyclic(value, depth + 1, true)
-                io.write(',\n')
-            end
+            local indentation = string.rep(' ', (depth + 1) * 4)
+            local content = string.format(format, indentation, key)
+            io.write(content)
+            serialize_acyclic(value, depth + 1, true)
+            io.write(',\n')
         end
 
         if sequence ~= nil then
